@@ -1,0 +1,29 @@
+{
+  "activityEntities" : [
+    "projectCreated",
+    [
+      {
+        "createdDate" : "2026-05-05T13:41:14Z",
+        "event" : "projectCreated",
+        "id" : "6E31740D-ABDD-48F9-B97B-B2C0A42E37E8",
+        "subtitle" : "BetterRest",
+        "title" : "Project Created"
+      }
+    ]
+  ],
+  "authorName" : "Le Viet Tung",
+  "createdDate" : "2026-05-05T13:41:14Z",
+  "description" : "",
+  "id" : "54DFBE35-6C78-45BB-9B22-3FB94A98AB6A",
+  "license" : "",
+  "location" : "",
+  "modifiedDate" : "2026-05-05T13:41:14Z",
+  "projectName" : "BetterRest",
+  "settingsEntity" : {
+    "snapshotOnExtendTraining" : true,
+    "snapshotOnResumeTraining" : false
+  },
+  "taskType" : "generalRegresor",
+  "title" : "Tabular Regression",
+  "version" : "1.1"
+}
