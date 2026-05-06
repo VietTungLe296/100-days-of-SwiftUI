@@ -13,8 +13,7 @@ struct ContentView: View {
     @State private var wakeup = defaultWakeTime
     @State private var cupOfCoffee = 0
     @State private var showAlert = false
-    @State private var alertTitle = ""
-    @State private var alertMessage = ""
+    @State private var actualSleepAmount = ""
 
     static var defaultWakeTime: Date {
         var components = DateComponents()
@@ -25,41 +24,54 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                VStack {
-                    Text("When do you want to wake up?")
-                        .font(.headline.bold())
+            ScrollView {
+                VStack(spacing: 24) {
+                    VStack {
+                        Text("When do you want to wake up?")
+                            .font(.headline.bold())
 
-                    DatePicker("Choose a time", selection: $wakeup, displayedComponents: .hourAndMinute)
-                        .labelsHidden()
-                }
-                .frame(maxWidth: .infinity, alignment: .center)
-                .listRowSeparator(.hidden)
+                        DatePicker("Choose a time", selection: $wakeup, displayedComponents: .hourAndMinute)
+                            .labelsHidden()
+                            .onChange(of: wakeup) { _ in
+                                calculateBedTime()
+                            }
+                    }
 
-                VStack {
-                    Text("Desire amount of sleep")
-                        .font(.headline)
-                    Stepper("\(desireSleepAmount.formatted()) hours", value: $desireSleepAmount, in: 4 ... 12, step: 0.25)
-                }
+                    VStack {
+                        Text("Desire amount of sleep")
+                            .font(.headline.weight(.semibold))
+                        Stepper("\(desireSleepAmount.formatted()) hours", value: $desireSleepAmount, in: 4 ... 12, step: 0.25)
+                            .onChange(of: desireSleepAmount) { _ in
+                                calculateBedTime()
+                            }
+                    }
 
-                VStack {
-                    Text("Daily coffee intake")
-                        .font(.headline)
-                    Stepper("^[\(cupOfCoffee) cup](inflect: true)", value: $cupOfCoffee, in: 0 ... 20, step: 1)
+                    Picker("Daily coffee intake", selection: $cupOfCoffee) {
+                        ForEach(0 ..< 21) {
+                            Text("^[\($0) cup](inflect: true)")
+                        }
+                    }
+                    .onChange(of: cupOfCoffee) { _ in
+                        calculateBedTime()
+                    }
+
+                    VStack {
+                        Text("YOU NEED TO SLEEP AT")
+                            .font(.title.bold().italic())
+                        Text("\(actualSleepAmount)")
+                            .font(.system(size: 100, design: .rounded))
+                    }
                 }
             }
-            .toolbar {
-                Button("Calculate", action: calculateBedTime)
-                    .buttonStyle(.borderedProminent)
-                    .tint(.mint)
-            }
-            .alert(alertTitle, isPresented: $showAlert) {
-                Button("OK") {
-                    showAlert = false
-                }
-            } message: {
-                Text(alertMessage)
-            }
+            .padding()
+        }
+        .onAppear {
+            calculateBedTime()
+        }
+        .alert("Something wrong!", isPresented: $showAlert) {
+            Button("Done") {}
+        } message: {
+            Text("Please try again later")
         }
     }
 
@@ -75,14 +87,10 @@ struct ContentView: View {
             let result = try model.prediction(
                 input: .init(wake: Double(hour + minute), estimatedSleep: desireSleepAmount, coffee: Double(cupOfCoffee))
             )
-            alertTitle = "Result"
-            alertMessage = (wakeup - result.actualSleep).formatted(date: .omitted, time: .shortened)
+            actualSleepAmount = (wakeup - result.actualSleep).formatted(date: .omitted, time: .shortened)
         } catch {
-            alertTitle = "Something wrong!"
-            alertMessage = "Please try again later"
+            showAlert = true
         }
-
-        showAlert = true
     }
 }
 
